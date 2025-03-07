@@ -1,0 +1,8 @@
+insightface
+mysql-connector-python
+faiss-gpu #change to cpu if not linux
+opencv-python
+pickle-mixin
+onnxruntime
+numpy==1.24.4
+torch #change according to your cuda version
