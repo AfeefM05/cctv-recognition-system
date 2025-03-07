@@ -6,10 +6,14 @@ import pickle
 import time
 import threading
 from queue import Queue
+from db import FaceDBLoggerSQL
 
 # Initialize InsightFace model
 model = insightface.app.FaceAnalysis(name='buffalo_l', providers=['CUDAExecutionProvider'])
 model.prepare(ctx_id=0, det_size=(640, 640))
+
+#Initialise db
+database=FaceDBLoggerSQL(host="127.0.0.1",port=3306)
 
 # Load embeddings and labels
 with open('labels.pkl', 'rb') as f:
@@ -22,7 +26,7 @@ index = faiss.read_index('face_index.faiss')
 
 # Camera URLs
 camera_urls = [
-    "http://10.42.0.208:4747/video"
+    0
 ]
 
 # Desired resolution for processing/display
@@ -89,6 +93,8 @@ def process_frames(camera_id):
                             'name': matched_name,
                             'color': color
                         })
+                        if distance[0]>0.5 and database.should_log_detection(matched_name):
+                            database.log_detection(matched_name,float(distance[0]),camera_id)
 
             result_queue.put(result)
             data['frame_queue'].task_done()
